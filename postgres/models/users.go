@@ -4,6 +4,8 @@ import (
 	"crudAPI/database"
 	"crudAPI/entity"
 	"log"
+
+	"github.com/google/uuid"
 )
 
 // import (
@@ -96,34 +98,19 @@ import (
 // 	return
 // }
 
-// create table users(
-// 	id serial primary key,
-// 	name varchar,
-// 	gender varchar,
-// 	age integer )
 func CreateUser(user entity.User) error {
 	db := database.PostgresInstance()
 	defer db.Close()
-	comand, err := db.Prepare("insert into users(name,gender,age) values($1, $2, $3)")
+
+	user.Id = uuid.New().String()
+	comand, err := db.Prepare("insert into users(id,name,gender,age) values($1, $2, $3, $4)")
 	if err != nil {
 		log.Println("Unable to create user:", err.Error())
 	}
-	comand.Exec(user.Name, user.Gender, user.Age)
+	comand.Exec(user.Id, user.Name, user.Gender, user.Age)
 
 	return nil
 }
-
-// func CreateUser2(ctx context.Context, in *pb.NewUser) (*pb.User, error) {
-// 	log.Printf("Received: %v", in.GetName())
-// 	user := &pb.User{Name: in.GetName(), Age: in.GetAge()}
-// 	comand, err := server.conn.Prepare("insert into users(name, age) values ($1,$2)")
-// 	if err != nil {
-// 		log.Println("Unable to insert data:", err.Error())
-// 	}
-// 	comand.Exec(user.Name, user.Age)
-
-// 	return user, nil
-// }
 
 // func GetUser(UID string) (entity.User, error) {
 // 	var user entity.User
