@@ -53,7 +53,6 @@ func UserRoutes(routes *gin.RouterGroup) {
 	routes.POST("", handlers.CreateUser)
 	// Update users at /users
 	routes.PUT("/:id", handlers.UpdateUser)
-	// // Delete users at /users
-	// routes.DELETE("/:id", handlers.DeleteUser)
-
+	// Delete users at /users
+	routes.DELETE("/:id", handlers.DeleteUser)
 }

@@ -80,27 +80,21 @@ func UpdateUser(id string, user entity.User) error {
 		return err
 	}
 	comand.Exec(user.Name, user.Gender, user.Age, user.Id)
+
+	log.Println(user.Name)
 	return nil
 }
 
-// func DeleteUser(id string) error {
-// 	var queryCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-// 	defer cancel()
+// Delete one user from the DB by its id
+func DeleteUser(id string) error {
+	db := database.PostgresInstance()
+	defer db.Close()
 
-// 	// Declare a primitive ObjectID from a hexadecimal string
-// 	idPrimitive, err := primitive.ObjectIDFromHex(id)
-// 	if err != nil {
-// 		log.Println(err.Error())
-// 		return err
-// 	}
-
-// 	// Call the DeleteOne() method by passing BSON
-// 	res, err := userCollection.DeleteOne(queryCtx, bson.M{"_id": idPrimitive})
-// 	if err != nil {
-// 		log.Println(err.Error())
-// 		return fmt.Errorf("unable to delete user")
-// 	} else if res.DeletedCount == 0 {
-// 		return fmt.Errorf("there is no such user for be deleted")
-// 	}
-// 	return nil
-// }
+	comand, err := db.Prepare("delete from users where id=$1")
+	if err != nil {
+		log.Println("Unable to delete user:", err.Error())
+		return err
+	}
+	comand.Exec(id)
+	return nil
+}

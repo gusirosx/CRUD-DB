@@ -77,17 +77,17 @@ func UpdateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"success": "user was successfully updated"})
 }
 
-// func DeleteUser(ctx *gin.Context) {
+func DeleteUser(ctx *gin.Context) {
 
-// 	userID := ctx.Param("id")
-// 	if userID == "" {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "no user ID was provided"})
-// 		return
-// 	}
+	userID := ctx.Param("id")
+	if userID == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "no user ID was provided"})
+		return
+	}
 
-// 	if err := models.DeleteUser(userID); err != nil {
-// 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		return
-// 	}
-// 	ctx.JSON(http.StatusOK, gin.H{"success": "User was successfully deleted"})
-// }
+	if err := models.DeleteUser(userID); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"success": "User was successfully deleted"})
+}
