@@ -16,6 +16,7 @@ var databaseName = os.Getenv("PG_DB_PG")
 var user = os.Getenv("PG_USER")
 var password = os.Getenv("PG_PASS")
 
+// create the postgres database connection
 func PostgresInstance() *sql.DB {
 	connection, err := sql.Open("postgres", fmt.Sprintf(connString, user, databaseName, password, host))
 	if err != nil {
