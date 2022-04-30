@@ -98,6 +98,25 @@ import (
 // 	return
 // }
 
+func GetUser(UID string) (entity.User, error) {
+	var user entity.User
+	db := database.PostgresInstance()
+	defer db.Close()
+
+	comand, err := db.Query("select * from users where id=$1", UID)
+	if err != nil {
+		log.Println("Error:", err.Error())
+	}
+
+	for comand.Next() {
+		err = comand.Scan(&user.Id, &user.Name, &user.Gender, &user.Age)
+		if err != nil {
+			log.Println("Error:", err.Error())
+		}
+	}
+	return user, nil
+}
+
 func CreateUser(user entity.User) error {
 	db := database.PostgresInstance()
 	defer db.Close()
@@ -111,25 +130,6 @@ func CreateUser(user entity.User) error {
 
 	return nil
 }
-
-// func GetUser(UID string) (entity.User, error) {
-// 	var user entity.User
-// 	var queryCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-// 	defer cancel()
-
-// 	// Get a primitive ObjectID from a hexadecimal string
-// 	idPrimitive, err := primitive.ObjectIDFromHex(UID)
-// 	if err != nil {
-// 		log.Println(err.Error())
-// 		return entity.User{}, err
-// 	}
-
-// 	// Call the FindOne() method by passing BSON
-// 	if err := userCollection.FindOne(queryCtx, bson.M{"_id": idPrimitive}).Decode(&user); err != nil {
-// 		return entity.User{}, err
-// 	}
-// 	return user, nil
-// }
 
 // func UpdateUser(id string, user entity.User) error {
 

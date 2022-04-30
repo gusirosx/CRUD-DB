@@ -8,23 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// import (
-// 	"crudAPI/entity"
-// 	"crudAPI/models"
-// 	"log"
-// 	"net/http"
+// type MongoController struct {
+// 	session *mongo.Client
+// }
 
-// 	"github.com/gin-gonic/gin"
-// 	"go.mongodb.org/mongo-driver/bson"
-// )
-
-// // type MongoController struct {
-// // 	session *mongo.Client
-// // }
-
-// // func NewMongoController(session *mongo.Client) *MongoController {
-// // 	return &MongoController{session}
-// // }
+// func NewMongoController(session *mongo.Client) *MongoController {
+// 	return &MongoController{session}
+// }
 
 // func GetUsers(ctx *gin.Context) {
 // 	response, err := models.GetUsers(ctx)
@@ -40,20 +30,20 @@ import (
 // 	ctx.JSON(http.StatusOK, allusers[0])
 // }
 
-// func GetUser(ctx *gin.Context) {
-// 	userID := ctx.Param("id")
+func GetUser(ctx *gin.Context) {
+	userID := ctx.Param("id")
 
-// 	user, err := models.GetUser(userID)
-// 	if err != nil {
-// 		if err.Error() == "mongo: no documents in result" {
-// 			ctx.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-// 		} else {
-// 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		}
-// 		return
-// 	}
-// 	ctx.JSON(http.StatusOK, user)
-// }
+	user, err := models.GetUser(userID)
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
+	ctx.JSON(http.StatusOK, user)
+}
 
 func CreateUser(ctx *gin.Context) {
 	var user entity.User
