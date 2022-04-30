@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// get all users from the DB by its id
+// Get all users from the DB by its id
 func GetUsers() ([]entity.User, error) {
 	var user entity.User
 	var users []entity.User
@@ -34,7 +34,7 @@ func GetUsers() ([]entity.User, error) {
 	return users, nil
 }
 
-// get one user from the DB by its id
+// Get one user from the DB by its id
 func GetUser(UID string) (entity.User, error) {
 	var user entity.User
 	db := database.PostgresInstance()
@@ -54,6 +54,7 @@ func GetUser(UID string) (entity.User, error) {
 	return user, nil
 }
 
+// Create one user into DB
 func CreateUser(user entity.User) error {
 	db := database.PostgresInstance()
 	defer db.Close()
@@ -68,32 +69,19 @@ func CreateUser(user entity.User) error {
 	return nil
 }
 
-// func UpdateUser(id string, user entity.User) error {
+// Update one user from the DB by its id
+func UpdateUser(id string, user entity.User) error {
+	db := database.PostgresInstance()
+	defer db.Close()
 
-// 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-// 	defer cancel()
-// 	// Declare a primitive ObjectID from a hexadecimal string
-// 	idPrimitive, err := primitive.ObjectIDFromHex(id)
-// 	if err != nil {
-// 		log.Println(err.Error())
-// 		return err
-// 	}
-
-// 	var updatedUser primitive.D
-// 	updatedUser = append(updatedUser,
-// 		bson.E{Key: "name", Value: user.Name},
-// 		bson.E{Key: "gender", Value: user.Gender},
-// 		bson.E{Key: "age", Value: user.Age})
-// 	opt := options.Update().SetUpsert(true)
-// 	update := bson.D{{Key: "$set", Value: updatedUser}}
-// 	_, err = userCollection.UpdateByID(ctx, idPrimitive, update, opt)
-// 	if err != nil {
-// 		log.Println(err.Error())
-// 		return fmt.Errorf("unable to update user")
-// 	}
-
-// 	return nil
-// }
+	comand, err := db.Prepare("update users set name=$1, gender=$2, age=$3 where id=$4")
+	if err != nil {
+		log.Println("Unable to execute the update:", err.Error())
+		return err
+	}
+	comand.Exec(user.Name, user.Gender, user.Age, user.Id)
+	return nil
+}
 
 // func DeleteUser(id string) error {
 // 	var queryCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -116,5 +104,3 @@ func CreateUser(user entity.User) error {
 // 	}
 // 	return nil
 // }
-
-// //defer client.Disconnect(ctx)
