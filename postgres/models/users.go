@@ -56,14 +56,14 @@ func GetUser(UID string) (entity.User, error) {
 func CreateUser(user entity.User) error {
 	db := database.PostgresInstance()
 	defer db.Close()
-
+	// get a unique userID
 	user.Id = uuid.New().String()
+	// execute the sql statement
 	comand, err := db.Prepare("insert into users(id,name,gender,age) values($1, $2, $3, $4)")
 	if err != nil {
 		return fmt.Errorf("unable to create the user:" + err.Error())
 	}
 	comand.Exec(user.Id, user.Name, user.Gender, user.Age)
-
 	return nil
 }
 
@@ -71,7 +71,7 @@ func CreateUser(user entity.User) error {
 func UpdateUser(user entity.User) error {
 	db := database.PostgresInstance()
 	defer db.Close()
-
+	// execute the sql statement
 	comand, err := db.Prepare("update users set name=$2, gender=$3, age=$4 where id=$1")
 	if err != nil {
 		return fmt.Errorf("unable to update the user:" + err.Error())
@@ -84,7 +84,7 @@ func UpdateUser(user entity.User) error {
 func DeleteUser(id string) error {
 	db := database.PostgresInstance()
 	defer db.Close()
-
+	// execute the sql statement
 	comand, err := db.Prepare("delete from users where id=$1")
 	if err != nil {
 		log.Println("Unable to delete user:", err.Error())
