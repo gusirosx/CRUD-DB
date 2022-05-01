@@ -11,23 +11,25 @@ import (
 
 // Get all users from the DB by its id
 func GetUsers() ([]entity.User, error) {
+	// create an empty user of type entity.User
 	var user entity.User
+	// create an empty list of type []entity.User
 	var users []entity.User
 	db := database.PostgresInstance()
 	defer db.Close()
 	// execute the sql statement
-	comand, err := db.Query("select * from users")
+	rows, err := db.Query("select * from users")
 	if err != nil {
 		log.Println("Unable to execute the query: ", err.Error())
 	}
+	defer rows.Close()
 	// iterate over the rows
-	for comand.Next() {
+	for rows.Next() {
 		// unmarshal the row object to user
-		err = comand.Scan(&user.Id, &user.Name, &user.Gender, &user.Age)
+		err = rows.Scan(&user.Id, &user.Name, &user.Gender, &user.Age)
 		if err != nil {
-			log.Println("Unable to scan the row: ", err.Error())
 			// return empty users slice on error
-			return []entity.User{}, nil
+			return []entity.User{}, fmt.Errorf("unable to retrieve the row:" + err.Error())
 		}
 		// append the user in the users slice
 		users = append(users, user)
@@ -37,6 +39,7 @@ func GetUsers() ([]entity.User, error) {
 
 // Get one user from the DB by its id
 func GetUser(UID string) (entity.User, error) {
+	// create an empty user of type entity.User
 	var user entity.User
 	db := database.PostgresInstance()
 	defer db.Close()
@@ -46,7 +49,6 @@ func GetUser(UID string) (entity.User, error) {
 	row := db.QueryRow(comand, UID)
 	// unmarshal the row object to user struct
 	if err := row.Scan(&user.Id, &user.Name, &user.Gender, &user.Age); err != nil {
-		log.Println("Unable to retrieve the user:", err.Error())
 		return entity.User{}, err
 	}
 	return user, nil
@@ -63,6 +65,7 @@ func CreateUser(user entity.User) error {
 	if err != nil {
 		return fmt.Errorf("unable to create the user:" + err.Error())
 	}
+	defer comand.Close()
 	comand.Exec(user.Id, user.Name, user.Gender, user.Age)
 	return nil
 }
@@ -76,6 +79,7 @@ func UpdateUser(user entity.User) error {
 	if err != nil {
 		return fmt.Errorf("unable to update the user:" + err.Error())
 	}
+	defer comand.Close()
 	comand.Exec(user.Id, user.Name, user.Gender, user.Age)
 	return nil
 }
@@ -87,9 +91,9 @@ func DeleteUser(id string) error {
 	// execute the sql statement
 	comand, err := db.Prepare("delete from users where id=$1")
 	if err != nil {
-		log.Println("Unable to delete user:", err.Error())
-		return err
+		return fmt.Errorf("unable to delete the user:" + err.Error())
 	}
+	defer comand.Close()
 	comand.Exec(id)
 	return nil
 }

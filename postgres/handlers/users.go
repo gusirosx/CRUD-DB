@@ -9,14 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// type MongoController struct {
-// 	session *mongo.Client
-// }
-
-// func NewMongoController(session *mongo.Client) *MongoController {
-// 	return &MongoController{session}
-// }
-
 // call GetUsers to get all users
 func GetUsers(ctx *gin.Context) {
 	response, err := models.GetUsers()
