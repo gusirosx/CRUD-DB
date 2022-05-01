@@ -9,3 +9,6 @@ create table users(
     gender varchar,
     age integer )
 ```
+myprojectname (package main)      — Holds the very basic setup and configuration/project consts
+  * handlers   (package handlers) — Holds the code that does the raw HTTP work
+  * models     (package models)   — Holds the models

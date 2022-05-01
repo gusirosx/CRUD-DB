@@ -1,17 +1,12 @@
 package models
 
 import (
-	"crudAPI/database"
 	"crudAPI/entity"
-	"database/sql"
 	"fmt"
 	"log"
 
 	"github.com/google/uuid"
 )
-
-// Create an unexported global variable to hold the database connection pool.
-var db *sql.DB = database.PostgresInstance()
 
 // Get all users from the DB by its id
 func GetUsers() ([]entity.User, error) {
