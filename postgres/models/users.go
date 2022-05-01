@@ -3,6 +3,7 @@ package models
 import (
 	"crudAPI/database"
 	"crudAPI/entity"
+	"fmt"
 	"log"
 
 	"github.com/google/uuid"
@@ -70,18 +71,16 @@ func CreateUser(user entity.User) error {
 }
 
 // Update one user from the DB by its id
-func UpdateUser(id string, user entity.User) error {
+func UpdateUser(user entity.User) error {
 	db := database.PostgresInstance()
 	defer db.Close()
-
-	comand, err := db.Prepare("update users set name=$1, gender=$2, age=$3 where id=$4")
+	// create the update sql query
+	query := "update users set name=$2, gender=$3, age=$4 where id=$1"
+	// execute the sql statement
+	_, err := db.Exec(query, user.Id, user.Name, user.Gender, user.Age)
 	if err != nil {
-		log.Println("Unable to execute the update:", err.Error())
-		return err
+		return fmt.Errorf("unable to update the user :" + err.Error())
 	}
-	comand.Exec(user.Name, user.Gender, user.Age, user.Id)
-
-	log.Println(user.Name)
 	return nil
 }
 

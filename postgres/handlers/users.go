@@ -59,8 +59,8 @@ func CreateUser(ctx *gin.Context) {
 func UpdateUser(ctx *gin.Context) {
 	var user entity.User
 
-	userID := ctx.Param("id")
-	if userID == "" {
+	user.Id = ctx.Param("id")
+	if user.Id == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "no user ID was provided"})
 		return
 	}
@@ -70,7 +70,7 @@ func UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	if err := models.UpdateUser(userID, user); err != nil {
+	if err := models.UpdateUser(user); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
