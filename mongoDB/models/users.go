@@ -16,9 +16,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-//defer client.Disconnect(ctx)
+// Create an unexported global variable to hold the database connection pool.
+var client *mongo.Client = database.MongoInstance()
 
-var userCollection *mongo.Collection = database.OpenCollection(database.Client, "user")
+// Create an unexported global variable to hold the collection connection pool.
+var collection *mongo.Collection = database.OpenCollection(client, "user")
 
 // Get all users from the DB by its id
 func GetUsers(ctx *gin.Context) (response *mongo.Cursor, err error) {
@@ -42,7 +44,7 @@ func GetUsers(ctx *gin.Context) (response *mongo.Cursor, err error) {
 
 	var queryCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
-	response, err = userCollection.Aggregate(queryCtx, mongo.Pipeline{matchStage, groupStage, projectStage})
+	response, err = collection.Aggregate(queryCtx, mongo.Pipeline{matchStage, groupStage, projectStage})
 	if err != nil {
 		log.Println(err.Error())
 		return
@@ -64,7 +66,7 @@ func GetUser(UID string) (entity.User, error) {
 	}
 
 	// Call the FindOne() method by passing BSON
-	if err := userCollection.FindOne(queryCtx, bson.M{"_id": idPrimitive}).Decode(&user); err != nil {
+	if err := collection.FindOne(queryCtx, bson.M{"_id": idPrimitive}).Decode(&user); err != nil {
 		return entity.User{}, err
 	}
 	return user, nil
@@ -77,7 +79,7 @@ func CreateUser(user entity.User) error {
 
 	// get a unique userID
 	user.Id = primitive.NewObjectID()
-	_, err := userCollection.InsertOne(ctx, user)
+	_, err := collection.InsertOne(ctx, user)
 	if err != nil {
 		log.Println(err.Error())
 		return fmt.Errorf("unable to create user")
@@ -105,7 +107,7 @@ func UpdateUser(id string, user entity.User) error {
 		bson.E{Key: "age", Value: user.Age})
 	opt := options.Update().SetUpsert(true)
 	update := bson.D{{Key: "$set", Value: updatedUser}}
-	_, err = userCollection.UpdateByID(ctx, idPrimitive, update, opt)
+	_, err = collection.UpdateByID(ctx, idPrimitive, update, opt)
 	if err != nil {
 		log.Println(err.Error())
 		return fmt.Errorf("unable to update user")
@@ -127,7 +129,7 @@ func DeleteUser(id string) error {
 	}
 
 	// Call the DeleteOne() method by passing BSON
-	res, err := userCollection.DeleteOne(queryCtx, bson.M{"_id": idPrimitive})
+	res, err := collection.DeleteOne(queryCtx, bson.M{"_id": idPrimitive})
 	if err != nil {
 		log.Println(err.Error())
 		return fmt.Errorf("unable to delete user")

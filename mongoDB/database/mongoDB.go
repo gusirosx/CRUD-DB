@@ -4,25 +4,18 @@ import (
 	"context"
 	"log"
 	"os"
-	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// Create an exported global variable to hold the database connection pool.
-var Client *mongo.Client = MongoInstance()
+var MongoDb = os.Getenv("MONGODB")
 
 func MongoInstance() *mongo.Client {
-	MongoDb := os.Getenv("MONGODB")
-	client, err := mongo.NewClient(options.Client().ApplyURI(MongoDb))
+	// Create a new client and connect to the server
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(MongoDb))
 	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	if err := client.Connect(ctx); err != nil {
-		log.Fatalln(err.Error())
+		log.Fatalln("Unable to establish connection:", err.Error())
 	}
 	log.Println("Connected to MongoDB!")
 	return client

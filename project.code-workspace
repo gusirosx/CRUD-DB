@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "mongoDB"
+		},
+		{
+			"path": "postgres"
+		}
+	],
+	"settings": {}
+}
