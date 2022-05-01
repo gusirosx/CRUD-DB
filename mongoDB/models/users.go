@@ -2,10 +2,10 @@ package models
 
 import (
 	"context"
+	"crudAPI/database"
+	"crudAPI/entity"
 	"fmt"
 	"log"
-	"mongoDB/database"
-	"mongoDB/entity"
 	"strconv"
 	"time"
 
@@ -16,8 +16,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+//defer client.Disconnect(ctx)
+
 var userCollection *mongo.Collection = database.OpenCollection(database.Client, "user")
 
+// Get all users from the DB by its id
 func GetUsers(ctx *gin.Context) (response *mongo.Cursor, err error) {
 	recordPerPage, err := strconv.Atoi(ctx.Query("recordPerPage"))
 	if err != nil || recordPerPage < 1 {
@@ -47,20 +50,7 @@ func GetUsers(ctx *gin.Context) (response *mongo.Cursor, err error) {
 	return
 }
 
-func CreateUser(user entity.User) error {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-	defer cancel()
-
-	user.Id = primitive.NewObjectID()
-	_, err := userCollection.InsertOne(ctx, user)
-	if err != nil {
-		log.Println(err.Error())
-		return fmt.Errorf("unable to create user")
-	}
-
-	return nil
-}
-
+// Get one user from the DB by its id
 func GetUser(UID string) (entity.User, error) {
 	var user entity.User
 	var queryCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -80,6 +70,23 @@ func GetUser(UID string) (entity.User, error) {
 	return user, nil
 }
 
+// Create one user into DB
+func CreateUser(user entity.User) error {
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	// get a unique userID
+	user.Id = primitive.NewObjectID()
+	_, err := userCollection.InsertOne(ctx, user)
+	if err != nil {
+		log.Println(err.Error())
+		return fmt.Errorf("unable to create user")
+	}
+
+	return nil
+}
+
+// Update one user from the DB by its id
 func UpdateUser(id string, user entity.User) error {
 
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -107,6 +114,7 @@ func UpdateUser(id string, user entity.User) error {
 	return nil
 }
 
+// Delete one user from the DB by its id
 func DeleteUser(id string) error {
 	var queryCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
@@ -128,5 +136,3 @@ func DeleteUser(id string) error {
 	}
 	return nil
 }
-
-//defer client.Disconnect(ctx)

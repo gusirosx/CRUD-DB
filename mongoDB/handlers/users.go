@@ -1,9 +1,9 @@
 package handlers
 
 import (
+	"crudAPI/entity"
+	"crudAPI/models"
 	"log"
-	"mongoDB/entity"
-	"mongoDB/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

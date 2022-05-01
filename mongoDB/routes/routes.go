@@ -1,8 +1,8 @@
 package routes
 
 import (
+	"crudAPI/handlers"
 	"log"
-	"mongoDB/handlers"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -49,11 +49,10 @@ func UserRoutes(routes *gin.RouterGroup) {
 	routes.GET("", handlers.GetUsers)
 	// Read users at /users/ID
 	routes.GET("/:id", handlers.GetUser)
-
+	// Create user at /users
 	routes.POST("", handlers.CreateUser)
 	// Update users at /users
 	routes.PUT("/:id", handlers.UpdateUser)
 	// Delete users at /users
 	routes.DELETE("/:id", handlers.DeleteUser)
-
 }

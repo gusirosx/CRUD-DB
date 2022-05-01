@@ -1,7 +1,7 @@
 package main
 
 import (
-	"mongoDB/routes"
+	"crudAPI/routes"
 )
 
 func main() {

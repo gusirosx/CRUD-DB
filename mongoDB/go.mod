@@ -1,4 +1,4 @@
-module mongoDB
+module crudAPI
 
 go 1.18
 
