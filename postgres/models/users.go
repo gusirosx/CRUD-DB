@@ -3,11 +3,15 @@ package models
 import (
 	"crudAPI/database"
 	"crudAPI/entity"
+	"database/sql"
 	"fmt"
 	"log"
 
 	"github.com/google/uuid"
 )
+
+// Create an unexported global variable to hold the database connection pool.
+var db *sql.DB = database.PostgresInstance()
 
 // Get all users from the DB by its id
 func GetUsers() ([]entity.User, error) {
@@ -15,8 +19,6 @@ func GetUsers() ([]entity.User, error) {
 	var user entity.User
 	// create an empty list of type []entity.User
 	var users []entity.User
-	db := database.PostgresInstance()
-	defer db.Close()
 	// execute the sql statement
 	rows, err := db.Query("select * from users")
 	if err != nil {
@@ -41,8 +43,6 @@ func GetUsers() ([]entity.User, error) {
 func GetUser(UID string) (entity.User, error) {
 	// create an empty user of type entity.User
 	var user entity.User
-	db := database.PostgresInstance()
-	defer db.Close()
 	// create the select sql query
 	comand := "select * from users where id=$1"
 	// execute the sql statement
@@ -56,8 +56,6 @@ func GetUser(UID string) (entity.User, error) {
 
 // Create one user into DB
 func CreateUser(user entity.User) error {
-	db := database.PostgresInstance()
-	defer db.Close()
 	// get a unique userID
 	user.Id = uuid.New().String()
 	// execute the sql statement
@@ -72,8 +70,6 @@ func CreateUser(user entity.User) error {
 
 // Update one user from the DB by its id
 func UpdateUser(user entity.User) error {
-	db := database.PostgresInstance()
-	defer db.Close()
 	// execute the sql statement
 	comand, err := db.Prepare("update users set name=$2, gender=$3, age=$4 where id=$1")
 	if err != nil {
@@ -86,8 +82,6 @@ func UpdateUser(user entity.User) error {
 
 // Delete one user from the DB by its id
 func DeleteUser(id string) error {
-	db := database.PostgresInstance()
-	defer db.Close()
 	// execute the sql statement
 	comand, err := db.Prepare("delete from users where id=$1")
 	if err != nil {

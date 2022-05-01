@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// call GetUsers to get all users
+// GetUsers will return all the users
 func GetUsers(ctx *gin.Context) {
 	response, err := models.GetUsers()
 	if err != nil {
@@ -20,6 +20,7 @@ func GetUsers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// GetUser will return a specific user
 func GetUser(ctx *gin.Context) {
 	// get the userID from the ctx params, key is "id"
 	userID := ctx.Param("id")
@@ -42,6 +43,7 @@ func GetUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
+// CreateUser create a user in the postgres database
 func CreateUser(ctx *gin.Context) {
 	// create an empty user of type entity.User
 	var user entity.User
@@ -61,6 +63,7 @@ func CreateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"success": "User was successfully created"})
 }
 
+// UpdateUser update a user in the postgres database
 func UpdateUser(ctx *gin.Context) {
 	// create an empty user of type entity.User
 	var user entity.User
@@ -87,6 +90,7 @@ func UpdateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"success": "user was successfully updated"})
 }
 
+// DeleteUser delete a user in the postgres database
 func DeleteUser(ctx *gin.Context) {
 
 	// get the userID from the ctx params, key is "id"
