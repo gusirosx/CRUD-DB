@@ -3,6 +3,7 @@ package handlers
 import (
 	"crudAPI/entity"
 	"crudAPI/models"
+	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -30,8 +31,7 @@ func GetUser(ctx *gin.Context) {
 
 	user, err := models.GetUser(userID)
 	if err != nil {
-		// Arrumar isso ==================================================================
-		if err.Error() == "mongo: no documents in result" {
+		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		} else {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
