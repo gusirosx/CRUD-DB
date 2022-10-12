@@ -2,22 +2,9 @@ package usecases
 
 import (
 	"CRUD-DB/clean/domain"
-	"database/sql"
 	"fmt"
 	"log"
 )
-
-type UserRepo interface {
-	GetUsers() ([]*domain.User, error)
-}
-
-type UserRepoImpl struct {
-	DB *sql.DB
-}
-
-func NewUserRepoImpl(DB *sql.DB) UserRepo {
-	return &UserRepoImpl{DB}
-}
 
 // Get all users from the DB by its id
 func (r *UserRepoImpl) GetUsers() ([]*domain.User, error) {
@@ -44,4 +31,19 @@ func (r *UserRepoImpl) GetUsers() ([]*domain.User, error) {
 		users = append(users, &user)
 	}
 	return users, nil
+}
+
+// Get one user from the DB by its id
+func (r *UserRepoImpl) GetUser(UID string) (*domain.User, error) {
+	// create an empty user of type entity.User
+	var user domain.User
+	// create the select sql query
+	comand := "select * from users where id=$1"
+	// execute the sql statement
+	row := r.DB.QueryRow(comand, UID)
+	// unmarshal the row object to user struct
+	if err := row.Scan(&user.Id, &user.Name, &user.Gender, &user.Age); err != nil {
+		return &domain.User{}, err
+	}
+	return &user, nil
 }
