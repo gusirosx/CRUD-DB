@@ -26,3 +26,15 @@ func PostgresInstance() *sql.DB {
 	log.Println("Connected to postgres database!")
 	return connection
 }
+
+type SQLRow struct {
+	Rows *sql.Rows
+}
+
+func (r SQLRow) Scan(dest ...interface{}) {
+	r.Rows.Scan(dest...)
+}
+
+func (r SQLRow) Next() bool {
+	return r.Rows.Next()
+}
