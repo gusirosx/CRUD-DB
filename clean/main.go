@@ -2,7 +2,7 @@ package main
 
 import (
 	"CRUD-DB/clean/adapters"
-	"CRUD-DB/clean/infrastructure"
+	"CRUD-DB/clean/infrastructure/database"
 	"CRUD-DB/clean/usecases"
 	"log"
 
@@ -16,7 +16,7 @@ const (
 // https://manuel.kiessling.net/2012/09/28/applying-the-clean-architecture-to-go-applications/
 func main() {
 
-	db := infrastructure.PostgresInstance()
+	db := database.PostgresInstance()
 	defer db.Close()
 
 	router := gin.Default()

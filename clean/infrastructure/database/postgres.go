@@ -9,14 +9,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type PostgresClient struct {
-	Client *sql.DB
-}
-
-func NewPostgresClient() *PostgresClient {
-	return &PostgresClient{Client: PostgresInstance()}
-}
-
 // create the postgres database connection
 func PostgresInstance() *sql.DB {
 	connection, err := sql.Open("postgres", fmt.Sprintf(connString, user, databaseName, password, host, ssl))
@@ -27,14 +19,22 @@ func PostgresInstance() *sql.DB {
 	return connection
 }
 
-type SQLRow struct {
-	Rows *sql.Rows
-}
+// type PostgresClient struct {
+// 	Client *sql.DB
+// }
 
-func (r SQLRow) Scan(dest ...interface{}) {
-	r.Rows.Scan(dest...)
-}
+// func NewPostgresClient() *PostgresClient {
+// 	return &PostgresClient{Client: PostgresInstance()}
+// }
 
-func (r SQLRow) Next() bool {
-	return r.Rows.Next()
-}
+// type SQLRow struct {
+// 	Rows *sql.Rows
+// }
+
+// func (r SQLRow) Scan(dest ...interface{}) {
+// 	r.Rows.Scan(dest...)
+// }
+
+// func (r SQLRow) Next() bool {
+// 	return r.Rows.Next()
+// }
