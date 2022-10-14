@@ -1,4 +1,4 @@
-package controller
+package adapters
 
 import (
 	"clean2/domain/model"

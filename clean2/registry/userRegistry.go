@@ -2,13 +2,11 @@ package registry
 
 import (
 	"clean2/adapters"
-	"clean2/adapters/controller"
-	ip "clean2/adapters/presenter"
 	"clean2/usecase"
 )
 
-func (r *registry) NewUserController() controller.UserController {
-	return controller.NewUserController(r.NewUserInteractor())
+func (r *registry) NewUserController() adapters.UserController {
+	return adapters.NewUserController(r.NewUserInteractor())
 }
 
 func (r *registry) NewUserInteractor() usecase.UserInteractor {
@@ -20,5 +18,5 @@ func (r *registry) NewUserRepository() usecase.UserRepository {
 }
 
 func (r *registry) NewUserPresenter() usecase.UserPresenter {
-	return ip.NewUserPresenter()
+	return adapters.NewUserPresenter()
 }

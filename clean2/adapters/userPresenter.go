@@ -1,4 +1,4 @@
-package presenter
+package adapters
 
 import (
 	"clean2/domain/model"
