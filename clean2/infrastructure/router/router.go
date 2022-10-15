@@ -28,16 +28,14 @@ func NewRouter(router *gin.Engine, app adapters.AppController) {
 		ctx.JSON(http.StatusNotFound, gin.H{"message": "Page not found"})
 	})
 
-	router.GET("/users", app.User.GetUsers)
-
-	// //Group user related routes together
-	// userRoutes := router.Group("/users")
-	// {
-	// 	// Read users at /users
-	// 	userRoutes.GET("", userHandler.GetUsers)
-	// 	// Read users at /users/ID
-	// 	userRoutes.GET("/:id", userHandler.GetUser)
-	// }
+	//Group user related routes together
+	userRoutes := router.Group("/users")
+	{
+		// Read users at /users
+		userRoutes.GET("", app.User.GetUsers)
+		// Read users at /users/ID
+		//userRoutes.GET("/:id", userHandler.GetUser)
+	}
 
 	//router.GET("/users", userHandler.GetUsers)
 	// r.GET("/person", personHandler.viewPersons)

@@ -18,10 +18,10 @@ func NewUserInteractor(r UserRepository, p UserPresenter) UserInteractor {
 }
 
 func (us *userInteractor) Get(u []*model.User) ([]*model.User, error) {
-	u, err := us.UserRepository.FindAll()
+	userList, err := us.UserRepository.FindAll()
 	if err != nil {
 		return nil, err
 	}
 
-	return us.UserPresenter.ResponseUsers(u), nil
+	return us.UserPresenter.ResponseUsers(userList), nil
 }
