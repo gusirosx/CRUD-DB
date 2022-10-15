@@ -17,7 +17,7 @@ func NewUserRepository(db *sql.DB) usecase.UserRepository {
 }
 
 // Get all users from the DB by its id
-func (r *userRepository) FindAll(u []*model.User) ([]*model.User, error) {
+func (r *userRepository) FindAll() ([]*model.User, error) {
 	// create an empty user of type domain.User
 	var user model.User
 	// create an empty list of type []domain.User
