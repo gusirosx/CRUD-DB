@@ -3,24 +3,42 @@ package adapters
 import (
 	"clean2/domain/model"
 	"clean2/usecase"
-
-	"github.com/jinzhu/gorm"
+	"database/sql"
+	"fmt"
+	"log"
 )
 
 type userRepository struct {
-	db *gorm.DB
+	db *sql.DB
 }
 
-func NewUserRepository(db *gorm.DB) usecase.UserRepository {
+func NewUserRepository(db *sql.DB) usecase.UserRepository {
 	return &userRepository{db}
 }
 
-func (ur *userRepository) FindAll(u []*model.User) ([]*model.User, error) {
-	err := ur.db.Find(&u).Error
+// Get all users from the DB by its id
+func (r *userRepository) FindAll(u []*model.User) ([]*model.User, error) {
+	// create an empty user of type domain.User
+	var user model.User
+	// create an empty list of type []domain.User
+	var users []*model.User
 
+	// execute the sql statement
+	rows, err := r.db.Query("select * from users")
 	if err != nil {
-		return nil, err
+		log.Println("Unable to execute the query: ", err.Error())
 	}
-
-	return u, nil
+	defer rows.Close()
+	// iterate over the rows
+	for rows.Next() {
+		// unmarshal the row object to user
+		err = rows.Scan(&user.Id, &user.Name, &user.Gender, &user.Age)
+		if err != nil {
+			// return empty users slice on error
+			return []*model.User{}, fmt.Errorf("unable to retrieve the row:" + err.Error())
+		}
+		// append the user in the users slice
+		users = append(users, &user)
+	}
+	return users, nil
 }

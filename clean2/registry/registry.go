@@ -2,19 +2,18 @@ package registry
 
 import (
 	"clean2/adapters"
-
-	"github.com/jinzhu/gorm"
+	"database/sql"
 )
 
 type registry struct {
-	db *gorm.DB
+	db *sql.DB
 }
 
 type Registry interface {
 	NewAppController() adapters.AppController
 }
 
-func NewRegistry(db *gorm.DB) Registry {
+func NewRegistry(db *sql.DB) Registry {
 	return &registry{db}
 }
 

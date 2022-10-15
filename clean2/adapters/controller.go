@@ -4,6 +4,8 @@ import (
 	"clean2/domain/model"
 	interactor "clean2/usecase"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type AppController struct {
@@ -19,20 +21,21 @@ type userController struct {
 }
 
 type UserController interface {
-	GetUsers(c Context) error
+	GetUsers(ctx *gin.Context)
 }
 
 func NewUserController(us interactor.UserInteractor) UserController {
 	return &userController{us}
 }
 
-func (uc *userController) GetUsers(c Context) error {
+func (uc *userController) GetUsers(ctx *gin.Context) {
 	var u []*model.User
 
 	u, err := uc.userInteractor.Get(u)
 	if err != nil {
-		return err
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while listing user items"})
+		return
 	}
 
-	return c.JSON(http.StatusOK, u)
+	ctx.JSON(http.StatusOK, u)
 }
