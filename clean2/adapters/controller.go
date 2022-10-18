@@ -24,6 +24,7 @@ type userController struct {
 type UserController interface {
 	GetUsers(ctx *gin.Context)
 	GetUser(ctx *gin.Context)
+	CreateUser(ctx *gin.Context)
 }
 
 func NewUserController(us interactor.UserInteractor) UserController {
@@ -64,3 +65,71 @@ func (uc *userController) GetUser(ctx *gin.Context) {
 	// send the response message
 	ctx.JSON(http.StatusOK, response)
 }
+
+// CreateUser create a user in the postgres database
+func (uc *userController) CreateUser(ctx *gin.Context) {
+	// create an empty user of type entity.User
+	var user model.User
+
+	// decode the json request to user
+	if err := ctx.BindJSON(&user); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// call CreateUser to create the user
+	_, err := uc.userInteractor.Create(&user)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	//response
+	// send the response message
+	ctx.JSON(http.StatusCreated, gin.H{"success": "User was successfully created"})
+}
+
+// // UpdateUser update a user in the postgres database
+// func UpdateUser(ctx *gin.Context) {
+// 	// create an empty user of type entity.User
+// 	var user entity.User
+
+// 	// get the userID from the ctx params, key is "id"
+// 	user.Id = ctx.Param("id")
+// 	if user.Id == "" {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "no user ID was provided"})
+// 		return
+// 	}
+
+// 	// decode the json request to user
+// 	if err := ctx.BindJSON(&user); err != nil {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 		return
+// 	}
+
+// 	// call UpdateUser to update the user
+// 	if err := models.UpdateUser(user); err != nil {
+// 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
+// 	// send the response message
+// 	ctx.JSON(http.StatusOK, gin.H{"success": "user was successfully updated"})
+// }
+
+// // DeleteUser delete a user in the postgres database
+// func DeleteUser(ctx *gin.Context) {
+
+// 	// get the userID from the ctx params, key is "id"
+// 	userID := ctx.Param("id")
+// 	if userID == "" {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "no user ID was provided"})
+// 		return
+// 	}
+
+// 	// call DeleteUser to delete the user
+// 	if err := models.DeleteUser(userID); err != nil {
+// 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
+// 	// send the response message
+// 	ctx.JSON(http.StatusOK, gin.H{"success": "User was successfully deleted"})
+// }

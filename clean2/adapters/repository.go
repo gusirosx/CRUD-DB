@@ -6,6 +6,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+
+	"github.com/google/uuid"
 )
 
 type userRepository struct {
@@ -57,3 +59,32 @@ func (r *userRepository) FindByID(UID string) (*model.User, error) {
 	}
 	return &user, nil
 }
+
+// Get one user from the DB by its id
+func (r *userRepository) Create(user *model.User) (*model.User, error) {
+	// get a unique userID
+	user.Id = uuid.New().String()
+	// execute the sql statement
+	comand, err := r.db.Prepare("insert into users(id,name,gender,age) values($1, $2, $3, $4)")
+	if err != nil {
+		return nil, fmt.Errorf("unable to create the user:" + err.Error())
+	}
+	defer comand.Close()
+	comand.Exec(user.Id, user.Name, user.Gender, user.Age)
+
+	return user, nil
+}
+
+// // Create one user into DB
+// func CreateUser(user entity.User) error {
+// 	// get a unique userID
+// 	user.Id = uuid.New().String()
+// 	// execute the sql statement
+// 	comand, err := db.Prepare("insert into users(id,name,gender,age) values($1, $2, $3, $4)")
+// 	if err != nil {
+// 		return fmt.Errorf("unable to create the user:" + err.Error())
+// 	}
+// 	defer comand.Close()
+// 	comand.Exec(user.Id, user.Name, user.Gender, user.Age)
+// 	return nil
+// }

@@ -7,15 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// func NewRouter(e *echo.Echo, c adapters.AppController) *echo.Echo {
-// 	e.Use(middleware.Logger())
-// 	e.Use(middleware.Recover())
-
-// 	e.GET("/users", func(context echo.Context) error { return c.User.GetUsers(context) })
-
-// 	return e
-// }
-
 func NewRouter(router *gin.Engine, app adapters.AppController) {
 	//userHandler := UserHandler{userUsecase}
 
@@ -35,11 +26,11 @@ func NewRouter(router *gin.Engine, app adapters.AppController) {
 		userRoutes.GET("", app.User.GetUsers)
 		// Read users at /users/ID
 		userRoutes.GET("/:id", app.User.GetUser)
+		// Create user at /users
+		userRoutes.POST("", app.User.CreateUser)
+		// // Update users at /users
+		// routes.PUT("/:id", handlers.UpdateUser)
+		// // Delete users at /users
+		// routes.DELETE("/:id", handlers.DeleteUser)
 	}
-
-	//router.GET("/users", userHandler.GetUsers)
-	// r.GET("/person", personHandler.viewPersons)
-	// r.GET("person/:id", personHandler.viewPersonId)
-	// r.PUT("/person/:id", personHandler.editPerson)
-	// r.DELETE("/person/:id", personHandler.deletePerson)
 }
