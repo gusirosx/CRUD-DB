@@ -42,3 +42,18 @@ func (r *userRepository) FindAll() ([]*model.User, error) {
 	}
 	return users, nil
 }
+
+// Get one user from the DB by its id
+func (r *userRepository) FindByID(UID string) (*model.User, error) {
+	// create an empty user of type entity.User
+	var user model.User
+	// create the select sql query
+	comand := "select * from users where id=$1"
+	// execute the sql statement
+	row := r.db.QueryRow(comand, UID)
+	// unmarshal the row object to user struct
+	if err := row.Scan(&user.Id, &user.Name, &user.Gender, &user.Age); err != nil {
+		return &model.User{}, err
+	}
+	return &user, nil
+}

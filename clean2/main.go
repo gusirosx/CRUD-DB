@@ -18,7 +18,6 @@ const (
 func main() {
 
 	db := database.PostgresInstance()
-	//db.LogMode(true)
 	defer db.Close()
 
 	registry := registry.NewRegistry(db)

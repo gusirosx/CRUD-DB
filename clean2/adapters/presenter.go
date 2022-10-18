@@ -17,3 +17,8 @@ func (up *userPresenter) ResponseUsers(us []*model.User) []*model.User {
 	}
 	return us
 }
+
+func (up *userPresenter) ResponseUser(user *model.User) *model.User {
+	user.Name = "Mr." + user.Name
+	return user
+}

@@ -34,7 +34,7 @@ func NewRouter(router *gin.Engine, app adapters.AppController) {
 		// Read users at /users
 		userRoutes.GET("", app.User.GetUsers)
 		// Read users at /users/ID
-		//userRoutes.GET("/:id", userHandler.GetUser)
+		userRoutes.GET("/:id", app.User.GetUser)
 	}
 
 	//router.GET("/users", userHandler.GetUsers)
