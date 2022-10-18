@@ -28,8 +28,8 @@ func NewRouter(router *gin.Engine, app adapters.AppController) {
 		userRoutes.GET("/:id", app.User.GetUser)
 		// Create user at /users
 		userRoutes.POST("", app.User.CreateUser)
-		// // Update users at /users
-		// routes.PUT("/:id", handlers.UpdateUser)
+		// Update users at /users
+		userRoutes.PUT("/:id", app.User.UpdateUser)
 		// // Delete users at /users
 		// routes.DELETE("/:id", handlers.DeleteUser)
 	}

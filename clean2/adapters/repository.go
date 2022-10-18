@@ -75,16 +75,15 @@ func (r *userRepository) Create(user *model.User) (*model.User, error) {
 	return user, nil
 }
 
-// // Create one user into DB
-// func CreateUser(user entity.User) error {
-// 	// get a unique userID
-// 	user.Id = uuid.New().String()
-// 	// execute the sql statement
-// 	comand, err := db.Prepare("insert into users(id,name,gender,age) values($1, $2, $3, $4)")
-// 	if err != nil {
-// 		return fmt.Errorf("unable to create the user:" + err.Error())
-// 	}
-// 	defer comand.Close()
-// 	comand.Exec(user.Id, user.Name, user.Gender, user.Age)
-// 	return nil
-// }
+// Update one user from the DB by its id
+func (r *userRepository) Update(user *model.User) (*model.User, error) {
+	// execute the sql statement
+	comand, err := r.db.Prepare("update users set name=$2, gender=$3, age=$4 where id=$1")
+	if err != nil {
+		return nil, fmt.Errorf("unable to update the user:" + err.Error())
+	}
+	defer comand.Close()
+	comand.Exec(user.Id, user.Name, user.Gender, user.Age)
+
+	return user, nil
+}

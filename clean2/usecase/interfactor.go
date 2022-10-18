@@ -13,6 +13,7 @@ type UserInteractor interface {
 	Get(u []*model.User) ([]*model.User, error)
 	GetByID(UID string) (*model.User, error)
 	Create(u *model.User) (*model.User, error)
+	Update(u *model.User) (*model.User, error)
 }
 
 func NewUserInteractor(r UserRepository, p UserPresenter) UserInteractor {
@@ -38,6 +39,14 @@ func (us *userInteractor) GetByID(UID string) (*model.User, error) {
 
 func (us *userInteractor) Create(user *model.User) (*model.User, error) {
 	user, err := us.UserRepository.Create(user)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (us *userInteractor) Update(user *model.User) (*model.User, error) {
+	user, err := us.UserRepository.Update(user)
 	if err != nil {
 		return nil, err
 	}
