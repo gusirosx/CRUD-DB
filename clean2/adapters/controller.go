@@ -26,6 +26,7 @@ type UserController interface {
 	GetUser(ctx *gin.Context)
 	CreateUser(ctx *gin.Context)
 	UpdateUser(ctx *gin.Context)
+	DeleteUser(ctx *gin.Context)
 }
 
 func NewUserController(us interactor.UserInteractor) UserController {
@@ -117,21 +118,21 @@ func (uc *userController) UpdateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"success": "user was successfully updated"})
 }
 
-// // DeleteUser delete a user in the postgres database
-// func DeleteUser(ctx *gin.Context) {
+// DeleteUser delete a user in the postgres database
+func (uc *userController) DeleteUser(ctx *gin.Context) {
+	// get the userID from the ctx params, key is "id"
+	userID := ctx.Param("id")
+	if userID == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "no user ID was provided"})
+		return
+	}
 
-// 	// get the userID from the ctx params, key is "id"
-// 	userID := ctx.Param("id")
-// 	if userID == "" {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "no user ID was provided"})
-// 		return
-// 	}
-
-// 	// call DeleteUser to delete the user
-// 	if err := models.DeleteUser(userID); err != nil {
-// 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		return
-// 	}
-// 	// send the response message
-// 	ctx.JSON(http.StatusOK, gin.H{"success": "User was successfully deleted"})
-// }
+	// call DeleteUser to update the user
+	_, err := uc.userInteractor.Delete(userID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	// send the response message
+	ctx.JSON(http.StatusOK, gin.H{"success": "User was successfully deleted"})
+}

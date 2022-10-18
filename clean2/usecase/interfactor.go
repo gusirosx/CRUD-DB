@@ -14,6 +14,7 @@ type UserInteractor interface {
 	GetByID(UID string) (*model.User, error)
 	Create(u *model.User) (*model.User, error)
 	Update(u *model.User) (*model.User, error)
+	Delete(UID string) (*model.User, error)
 }
 
 func NewUserInteractor(r UserRepository, p UserPresenter) UserInteractor {
@@ -47,6 +48,14 @@ func (us *userInteractor) Create(user *model.User) (*model.User, error) {
 
 func (us *userInteractor) Update(user *model.User) (*model.User, error) {
 	user, err := us.UserRepository.Update(user)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (us *userInteractor) Delete(UID string) (*model.User, error) {
+	user, err := us.UserRepository.Delete(UID)
 	if err != nil {
 		return nil, err
 	}

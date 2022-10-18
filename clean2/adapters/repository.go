@@ -87,3 +87,16 @@ func (r *userRepository) Update(user *model.User) (*model.User, error) {
 
 	return user, nil
 }
+
+// Delete one user from the DB by its id
+func (r *userRepository) Delete(id string) (*model.User, error) {
+	// execute the sql statement
+	comand, err := r.db.Prepare("delete from users where id=$1")
+	if err != nil {
+		return nil, fmt.Errorf("unable to delete the user:" + err.Error())
+	}
+	defer comand.Close()
+	comand.Exec(id)
+
+	return nil, nil
+}
