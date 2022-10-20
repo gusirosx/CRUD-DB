@@ -33,6 +33,7 @@ func NewUserController(us interactor.UserInteractor) UserController {
 	return &userController{us}
 }
 
+// GetUser will return all users
 func (uc *userController) GetUsers(ctx *gin.Context) {
 	var u []*model.User
 
