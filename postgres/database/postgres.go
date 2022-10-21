@@ -18,11 +18,16 @@ var password = os.Getenv("PG_PASS")
 var ssl = os.Getenv("DB_SSLMODE")
 
 // create the postgres database connection
-func PostgresInstance() *sql.DB {
+func PostgresInstance() *SqlClient {
 	connection, err := sql.Open("postgres", fmt.Sprintf(connString, user, databaseName, password, host, ssl))
 	if err != nil {
 		log.Fatalln("Unable to establish connection:", err.Error())
 	}
 	log.Println("Connected to postgres database!")
-	return connection
+	return &SqlClient{connection}
+}
+
+// Create a custom RedisClient type which wraps the redis.Client connection pool.
+type SqlClient struct {
+	*sql.DB
 }

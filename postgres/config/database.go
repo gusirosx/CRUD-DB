@@ -2,12 +2,11 @@ package config
 
 import (
 	"crudAPI/database"
-	"database/sql"
 	"log"
 )
 
 // Create an unexported global variable to hold the database connection pool.
-var db *sql.DB = database.PostgresInstance()
+var db *database.SqlClient = database.PostgresInstance()
 
 // Create users table if not exists
 func Init() {
