@@ -1,7 +1,7 @@
-package models
+package database
 
 import (
-	"crudAPI/entity"
+	"crudAPI/types"
 	"fmt"
 	"log"
 
@@ -9,11 +9,11 @@ import (
 )
 
 // Get all users from the DB by its id
-func GetUsers() ([]entity.User, error) {
+func (db *SqlClient) GetUsers() ([]types.User, error) {
 	// create an empty user of type entity.User
-	var user entity.User
+	var user types.User
 	// create an empty list of type []entity.User
-	var users []entity.User
+	var users []types.User
 	// execute the sql statement
 	rows, err := db.Query("select * from users")
 	if err != nil {
@@ -23,10 +23,10 @@ func GetUsers() ([]entity.User, error) {
 	// iterate over the rows
 	for rows.Next() {
 		// unmarshal the row object to user
-		err = rows.Scan(&user.Id, &user.Name, &user.Gender, &user.Age)
+		err = rows.Scan(&user.ID, &user.Name, &user.Gender, &user.Age)
 		if err != nil {
 			// return empty users slice on error
-			return []entity.User{}, fmt.Errorf("unable to retrieve the row:" + err.Error())
+			return []types.User{}, fmt.Errorf("unable to retrieve the row:" + err.Error())
 		}
 		// append the user in the users slice
 		users = append(users, user)
@@ -35,48 +35,48 @@ func GetUsers() ([]entity.User, error) {
 }
 
 // Get one user from the DB by its id
-func GetUser(UID string) (entity.User, error) {
+func (db *SqlClient) GetUser(UID string) (types.User, error) {
 	// create an empty user of type entity.User
-	var user entity.User
+	var user types.User
 	// create the select sql query
 	comand := "select * from users where id=$1"
 	// execute the sql statement
 	row := db.QueryRow(comand, UID)
 	// unmarshal the row object to user struct
-	if err := row.Scan(&user.Id, &user.Name, &user.Gender, &user.Age); err != nil {
-		return entity.User{}, err
+	if err := row.Scan(&user.ID, &user.Name, &user.Gender, &user.Age); err != nil {
+		return types.User{}, err
 	}
 	return user, nil
 }
 
 // Create one user into DB
-func CreateUser(user entity.User) error {
+func (db *SqlClient) CreateUser(user types.User) (types.User, error) {
 	// get a unique userID
-	user.Id = uuid.New().String()
+	user.ID = uuid.New().String()
 	// execute the sql statement
 	comand, err := db.Prepare("insert into users(id,name,gender,age) values($1, $2, $3, $4)")
 	if err != nil {
-		return fmt.Errorf("unable to create the user:" + err.Error())
+		return types.User{}, fmt.Errorf("unable to create the user:" + err.Error())
 	}
 	defer comand.Close()
-	comand.Exec(user.Id, user.Name, user.Gender, user.Age)
-	return nil
+	comand.Exec(user.ID, user.Name, user.Gender, user.Age)
+	return user, nil
 }
 
 // Update one user from the DB by its id
-func UpdateUser(user entity.User) error {
+func (db *SqlClient) UpdateUser(user types.User) error {
 	// execute the sql statement
 	comand, err := db.Prepare("update users set name=$2, gender=$3, age=$4 where id=$1")
 	if err != nil {
 		return fmt.Errorf("unable to update the user:" + err.Error())
 	}
 	defer comand.Close()
-	comand.Exec(user.Id, user.Name, user.Gender, user.Age)
+	comand.Exec(user.ID, user.Name, user.Gender, user.Age)
 	return nil
 }
 
 // Delete one user from the DB by its id
-func DeleteUser(id string) error {
+func (db *SqlClient) DeleteUser(id string) error {
 	// execute the sql statement
 	comand, err := db.Prepare("delete from users where id=$1")
 	if err != nil {

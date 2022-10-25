@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"crudAPI/entity"
-	"crudAPI/models"
+	"crudAPI/services"
+	"crudAPI/types"
 	"database/sql"
 	"net/http"
 
@@ -11,7 +11,7 @@ import (
 
 // GetUsers will return all the users
 func GetUsers(ctx *gin.Context) {
-	response, err := models.GetUsers()
+	response, err := services.GetUsers()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while listing user items"})
 		return
@@ -30,7 +30,7 @@ func GetUser(ctx *gin.Context) {
 	}
 
 	// call GetUser to get the user
-	user, err := models.GetUser(userID)
+	user, err := services.GetUser(userID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
@@ -46,7 +46,7 @@ func GetUser(ctx *gin.Context) {
 // CreateUser create a user in the postgres database
 func CreateUser(ctx *gin.Context) {
 	// create an empty user of type entity.User
-	var user entity.User
+	var user types.User
 
 	// decode the json request to user
 	if err := ctx.BindJSON(&user); err != nil {
@@ -55,7 +55,8 @@ func CreateUser(ctx *gin.Context) {
 	}
 
 	// call CreateUser to create the user
-	if err := models.CreateUser(user); err != nil {
+	_, err := services.CreateUser(user)
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -66,11 +67,11 @@ func CreateUser(ctx *gin.Context) {
 // UpdateUser update a user in the postgres database
 func UpdateUser(ctx *gin.Context) {
 	// create an empty user of type entity.User
-	var user entity.User
+	var user types.User
 
 	// get the userID from the ctx params, key is "id"
-	user.Id = ctx.Param("id")
-	if user.Id == "" {
+	user.ID = ctx.Param("id")
+	if user.ID == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "no user ID was provided"})
 		return
 	}
@@ -82,7 +83,7 @@ func UpdateUser(ctx *gin.Context) {
 	}
 
 	// call UpdateUser to update the user
-	if err := models.UpdateUser(user); err != nil {
+	if err := services.UpdateUser(user); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -101,7 +102,7 @@ func DeleteUser(ctx *gin.Context) {
 	}
 
 	// call DeleteUser to delete the user
-	if err := models.DeleteUser(userID); err != nil {
+	if err := services.DeleteUser(userID); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

@@ -1,6 +1,8 @@
 package main
 
-import "crudAPI/routes"
+import (
+	"crudAPI/routes"
+)
 
 func main() {
 	// Setup GinGonic Routes
