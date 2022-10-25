@@ -55,7 +55,8 @@ func CreateUser(ctx *gin.Context) {
 	}
 
 	// call CreateUser to create the user
-	if err := services.CreateUser(user); err != nil {
+	_, err := services.CreateUser(user)
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

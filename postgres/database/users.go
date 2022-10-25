@@ -50,17 +50,17 @@ func (db *SqlClient) GetUser(UID string) (types.User, error) {
 }
 
 // Create one user into DB
-func (db *SqlClient) CreateUser(user types.User) error {
+func (db *SqlClient) CreateUser(user types.User) (types.User, error) {
 	// get a unique userID
 	user.ID = uuid.New().String()
 	// execute the sql statement
 	comand, err := db.Prepare("insert into users(id,name,gender,age) values($1, $2, $3, $4)")
 	if err != nil {
-		return fmt.Errorf("unable to create the user:" + err.Error())
+		return types.User{}, fmt.Errorf("unable to create the user:" + err.Error())
 	}
 	defer comand.Close()
 	comand.Exec(user.ID, user.Name, user.Gender, user.Age)
-	return nil
+	return user, nil
 }
 
 // Update one user from the DB by its id

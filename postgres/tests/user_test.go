@@ -10,7 +10,8 @@ func TestCreateUser(t *testing.T) {
 	user := types.User{ID: "userHash", Name: "User Test", Gender: "robot", Age: 25}
 	client := database.PostgresInstance()
 
-	if err := client.CreateUser(user); err != nil {
+	user, err := client.CreateUser(user)
+	if err != nil {
 		t.Fatalf("creation test failed: %v", err)
 	}
 
@@ -21,7 +22,8 @@ func TestUpdateUser(t *testing.T) {
 	user := types.User{ID: "userHash", Name: "User Test", Gender: "robot", Age: 25}
 	client := database.PostgresInstance()
 
-	if err := client.CreateUser(user); err != nil {
+	user, err := client.CreateUser(user)
+	if err != nil {
 		t.Fatalf("creation test failed: %v", err)
 	}
 

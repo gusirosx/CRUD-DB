@@ -3,7 +3,7 @@ package database
 import "log"
 
 // Create users table if not exists
-func Init() {
+func init() {
 	// Create an unexported global variable to hold the database connection pool.
 	db := PostgresInstance()
 	// Drop table users if exists

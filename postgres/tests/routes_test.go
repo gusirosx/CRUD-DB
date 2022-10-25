@@ -1,66 +1,68 @@
 package tests
 
-// func setupTestingRoutes() *gin.Engine {
-// 	gin.SetMode(gin.ReleaseMode)
-// 	r := gin.Default()
-// 	return r
-// }
+import (
+	"crudAPI/database"
+	"crudAPI/handlers"
+	"crudAPI/types"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 
-// func TestGetAllUsers(t *testing.T) {
-// 	r := setupTestingRoutes()
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/assert/v2"
+)
 
-// 	t.Run("test get all users status code", func(t *testing.T) {
-// 		r.GET("/users", handlers.GetAllUsers)
+// Helper function to create a router during testing
+func getRouterTesting() *gin.Engine {
+	//Set Gin to Test Mode
+	gin.SetMode(gin.TestMode)
+	router := gin.Default()
+	return router
+}
 
-// 		req, _ := http.NewRequest("GET", "/users", nil)
-// 		res := httptest.NewRecorder()
-// 		r.ServeHTTP(res, req)
-// 		assert.Equal(t, http.StatusOK, res.Code)
-// 	})
-// }
+// Test the TestGetUsers handler function
+func TestGetUsers(t *testing.T) {
+	// Get a new router
+	r := getRouterTesting()
+	// Define the route similar to its definition in the routes file
+	r.GET("/users", handlers.GetUsers)
+	// Create a response recorder
+	req, _ := http.NewRequest("GET", "/users", nil)
+	res := httptest.NewRecorder()
+	r.ServeHTTP(res, req)
+	// Test that the payload response is correct
+	assert.Equal(t, http.StatusOK, res.Code)
+}
 
-// func TestGetUserById(t *testing.T) {
-// 	r := setupTestingRoutes()
+// Test the TestGetUser handler function
+func TestGetUser(t *testing.T) {
 
-// 	t.Run("test get user by id", func(t *testing.T) {
+	// add a user
+	u := types.User{Name: "User Test", Gender: "robot", Age: 25}
+	client := database.PostgresInstance()
+	user, err := client.CreateUser(u)
+	if err != nil {
+		t.Fatalf("creation test failed: %v", err)
+	}
+	// remove the inserted users
+	defer client.DeleteUser(u.ID)
+	// Get a new router
+	r := getRouterTesting()
+	// Define the route similar to its definition in the routes file
+	r.GET("/users/:id", handlers.GetUser)
+	// Create a response recorder
+	req, _ := http.NewRequest("GET", "/users/"+user.ID, nil)
+	res := httptest.NewRecorder()
+	r.ServeHTTP(res, req)
 
-// 		id, _ := models.InsertUser("test get by id", "getbyid@mail.com", "pass", "a number")
-// 		userExpect := models.User{
-// 			ID:       id,
-// 			Name:     "test get by id",
-// 			Email:    "getbyid@mail.com",
-// 			Password: "pass",
-// 			Phone:    "a number",
-// 		}
-// 		defer models.DeleteUserById(id)
+	var usertest types.User
+	_ = json.Unmarshal(res.Body.Bytes(), &usertest)
+	// Test that the payload response is correct
+	assert.Equal(t, http.StatusOK, res.Code)
+	assert.Equal(t, usertest.ID, user.ID)
 
-// 		r.GET("/users/:id", handlers.GetUserById)
-
-// 		req, _ := http.NewRequest("GET", "/users/"+strconv.Itoa(id), nil)
-// 		res := httptest.NewRecorder()
-// 		r.ServeHTTP(res, req)
-
-// 		var user models.User
-// 		_ = json.Unmarshal(res.Body.Bytes(), &user)
-// 		assert.Equal(t, http.StatusOK, res.Code)
-// 		assert.Equal(t, userExpect.Email, user.Email)
-// 	})
-
-// 	t.Run("test get user by id where id not on db", func(t *testing.T) {
-// 		r.GET("/users/:id", handlers.GetUserById)
-
-// 		req, _ := http.NewRequest("GET", "/users/0", nil)
-// 		res := httptest.NewRecorder()
-// 		r.ServeHTTP(res, req)
-
-// 		assert.Equal(t, http.StatusNotFound, res.Code)
-
-// 		expect := `{"status":"not found"}`
-// 		resBody, _ := ioutil.ReadAll(res.Body)
-// 		got := string(resBody)
-// 		assert.Equal(t, expect, got, "erro response expected")
-// 	})
-// }
+}
 
 // func TestDeleteUserById(t *testing.T) {
 // 	r := setupTestingRoutes()
@@ -190,59 +192,6 @@ package tests
 // 		newBytesUser, _ := json.Marshal(modifiedUser)
 
 // 		req, _ := http.NewRequest("PUT", "/users/"+strconv.Itoa(0), bytes.NewBuffer(newBytesUser))
-// 		res := httptest.NewRecorder()
-// 		r.ServeHTTP(res, req)
-
-// 		assert.Equal(t, http.StatusNotFound, res.Code)
-// 	})
-// }
-
-// func TestPatchUserById(t *testing.T) {
-// 	r := setupTestingRoutes()
-// 	r.PATCH("/users/:id", handlers.PatchUserById)
-
-// 	currentUser := models.User{
-// 		Name:     "teste321",
-// 		Email:    "teste321@mail",
-// 		Password: "senha321",
-// 		Phone:    "34 22222222",
-// 	}
-// 	modifiedUser := models.User{
-// 		Name:  "teste123",
-// 		Email: "teste123@mail",
-// 	}
-
-// 	t.Run("test patch existing user", func(t *testing.T) {
-// 		currentUser.ID, _ = models.InsertUser(
-// 			currentUser.Name,
-// 			currentUser.Email,
-// 			currentUser.Password,
-// 			currentUser.Phone,
-// 		)
-// 		defer models.DeleteUserById(currentUser.ID)
-
-// 		newBytesUser, _ := json.Marshal(modifiedUser)
-// 		req, _ := http.NewRequest("PATCH", "/users/"+strconv.Itoa(currentUser.ID), bytes.NewBuffer(newBytesUser))
-// 		res := httptest.NewRecorder()
-// 		r.ServeHTTP(res, req)
-
-// 		assert.Equal(t, http.StatusOK, res.Code)
-
-// 		resBody, _ := ioutil.ReadAll(res.Body)
-// 		var userGot models.User
-// 		_ = json.Unmarshal(resBody, &userGot)
-
-// 		userExpect := currentUser
-// 		userExpect.Name = modifiedUser.Name
-// 		userExpect.Email = modifiedUser.Email
-
-// 		assert.Equal(t, userExpect, userGot)
-// 	})
-
-// 	t.Run("patch inexistent user id on database", func(t *testing.T) {
-// 		newBytesUser, _ := json.Marshal(modifiedUser)
-
-// 		req, _ := http.NewRequest("PATCH", "/users/"+strconv.Itoa(0), bytes.NewBuffer(newBytesUser))
 // 		res := httptest.NewRecorder()
 // 		r.ServeHTTP(res, req)
 

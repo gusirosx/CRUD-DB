@@ -27,11 +27,12 @@ func GetUser(UID string) (types.User, error) {
 }
 
 // CreateUser create a user in the postgres database
-func CreateUser(user types.User) error {
-	if err := client.CreateUser(user); err != nil {
-		return err
+func CreateUser(user types.User) (types.User, error) {
+	user, err := client.CreateUser(user)
+	if err != nil {
+		return types.User{}, err
 	}
-	return nil
+	return user, nil
 }
 
 // UpdateUser updates a user in the postgres database
