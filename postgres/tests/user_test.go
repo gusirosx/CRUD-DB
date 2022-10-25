@@ -19,7 +19,7 @@ func TestCreateUser(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
-	user := types.User{ID: "userHash", Name: "User Test", Gender: "robot", Age: 25}
+	user := types.User{Name: "User Test", Gender: "robot", Age: 25}
 	client := database.PostgresInstance()
 
 	user, err := client.CreateUser(user)
