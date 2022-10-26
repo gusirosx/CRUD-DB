@@ -1,9 +1,8 @@
-package models
+package database
 
 import (
 	"context"
-	"crudAPI/database"
-	"crudAPI/entity"
+	"crudAPI/types"
 	"fmt"
 	"log"
 	"strconv"
@@ -16,14 +15,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// Create an unexported global variable to hold the database connection pool.
-var client *mongo.Client = database.MongoInstance()
-
 // Create an unexported global variable to hold the collection connection pool.
-var collection *mongo.Collection = database.OpenCollection(client, "user")
+func (client *MongoClient) getCollection() (collection *mongo.Collection) {
+	return client.OpenCollection("user")
+}
 
 // Get all users from the DB by its id
-func GetUsers(ctx *gin.Context) (response *mongo.Cursor, err error) {
+func (client *MongoClient) GetUsers(ctx *gin.Context) (primitive.M, error) { //([]types.User, error)
+
+	// Get all users from the DB by its id
 	recordPerPage, err := strconv.Atoi(ctx.Query("recordPerPage"))
 	if err != nil || recordPerPage < 1 {
 		recordPerPage = 10
@@ -44,17 +44,30 @@ func GetUsers(ctx *gin.Context) (response *mongo.Cursor, err error) {
 
 	var queryCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
-	response, err = collection.Aggregate(queryCtx, mongo.Pipeline{matchStage, groupStage, projectStage})
+
+	// get mongo collection
+	collection := client.getCollection()
+	//var response *mongo.Cursor
+	response, err := collection.Aggregate(queryCtx, mongo.Pipeline{matchStage, groupStage, projectStage})
 	if err != nil {
 		log.Println(err.Error())
-		return
+		// return empty users slice on error
+		return primitive.M{}, nil
 	}
-	return
+	// create an empty list of type []bson.M
+	var usersList []bson.M
+	if err = response.All(ctx, &usersList); err != nil {
+		log.Println(err.Error())
+		// return empty users slice on error
+		return primitive.M{}, nil
+	}
+	// send the response message
+	return usersList[0], nil
 }
 
 // Get one user from the DB by its id
-func GetUser(UID string) (entity.User, error) {
-	var user entity.User
+func (client *MongoClient) GetUser(UID string) (types.User, error) {
+	var user types.User
 	var queryCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
@@ -62,34 +75,38 @@ func GetUser(UID string) (entity.User, error) {
 	idPrimitive, err := primitive.ObjectIDFromHex(UID)
 	if err != nil {
 		log.Println(err.Error())
-		return entity.User{}, err
+		return types.User{}, err
 	}
 
+	// get mongo collection
+	collection := client.getCollection()
 	// Call the FindOne() method by passing BSON
 	if err := collection.FindOne(queryCtx, bson.M{"_id": idPrimitive}).Decode(&user); err != nil {
-		return entity.User{}, err
+		return types.User{}, err
 	}
 	return user, nil
 }
 
 // Create one user into DB
-func CreateUser(user entity.User) error {
+func (client *MongoClient) CreateUser(user types.User) (types.User, error) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
 	// get a unique userID
-	user.Id = primitive.NewObjectID()
+	user.ID = primitive.NewObjectID()
+	// get mongo collection
+	collection := client.getCollection()
+	//Insert one entry
 	_, err := collection.InsertOne(ctx, user)
 	if err != nil {
 		log.Println(err.Error())
-		return fmt.Errorf("unable to create user")
+		return types.User{}, fmt.Errorf("unable to create user")
 	}
-
-	return nil
+	return user, nil
 }
 
 // Update one user from the DB by its id
-func UpdateUser(id string, user entity.User) error {
+func (client *MongoClient) UpdateUser(id string, user types.User) error {
 
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
@@ -107,6 +124,8 @@ func UpdateUser(id string, user entity.User) error {
 		bson.E{Key: "age", Value: user.Age})
 	opt := options.Update().SetUpsert(true)
 	update := bson.D{{Key: "$set", Value: updatedUser}}
+	// get mongo collection
+	collection := client.getCollection()
 	_, err = collection.UpdateByID(ctx, idPrimitive, update, opt)
 	if err != nil {
 		log.Println(err.Error())
@@ -117,7 +136,7 @@ func UpdateUser(id string, user entity.User) error {
 }
 
 // Delete one user from the DB by its id
-func DeleteUser(id string) error {
+func (client *MongoClient) DeleteUser(id string) error {
 	var queryCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
@@ -127,7 +146,8 @@ func DeleteUser(id string) error {
 		log.Println(err.Error())
 		return err
 	}
-
+	// get mongo collection
+	collection := client.getCollection()
 	// Call the DeleteOne() method by passing BSON
 	res, err := collection.DeleteOne(queryCtx, bson.M{"_id": idPrimitive})
 	if err != nil {

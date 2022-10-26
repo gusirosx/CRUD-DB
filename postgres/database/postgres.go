@@ -17,7 +17,7 @@ var user = os.Getenv("PG_USER")
 var password = os.Getenv("PG_PASS")
 var ssl = os.Getenv("DB_SSLMODE")
 
-// Create a custom RedisClient type which wraps the redis.Client connection pool.
+// Create a custom SqlClient type which wraps the redis.Client connection pool.
 type SqlClient struct {
 	*sql.DB
 }

@@ -11,17 +11,23 @@ import (
 
 var MongoDb = os.Getenv("MONGODB")
 
-func MongoInstance() *mongo.Client {
+// Create a custom SqlClient type which wraps the redis.Client connection pool.
+type MongoClient struct {
+	*mongo.Client
+}
+
+// create the mongoDB database connection
+func MongoInstance() *MongoClient {
 	// Create a new client and connect to the server
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(MongoDb))
 	if err != nil {
 		log.Fatalln("Unable to establish connection:", err.Error())
 	}
 	log.Println("Connected to MongoDB!")
-	return client
+	return &MongoClient{client}
 }
 
-func OpenCollection(client *mongo.Client, name string) *mongo.Collection {
+func (client *MongoClient) OpenCollection(name string) *mongo.Collection {
 	var collection *mongo.Collection = client.Database("UsersMongo").Collection(name)
 	return collection
 }
