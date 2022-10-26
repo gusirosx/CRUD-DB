@@ -46,10 +46,10 @@ func UpdateUser(userID string, user types.User) error {
 	return nil
 }
 
-// // DeleteUser delete a user in the postgres database
-// func DeleteUser(ID string) error {
-// 	if err := client.DeleteUser(ID); err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
+// DeleteUser delete a user in the postgres database
+func DeleteUser(ID string) error {
+	if err := client.DeleteUser(ID); err != nil {
+		return err
+	}
+	return nil
+}

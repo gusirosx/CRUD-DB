@@ -93,7 +93,7 @@ func (client *MongoClient) CreateUser(user types.User) (types.User, error) {
 	defer cancel()
 
 	// get a unique userID
-	user.Id = primitive.NewObjectID()
+	user.ID = primitive.NewObjectID()
 	// get mongo collection
 	collection := client.getCollection()
 	//Insert one entry
@@ -135,14 +135,26 @@ func (client *MongoClient) UpdateUser(id string, user types.User) error {
 	return nil
 }
 
-// // Delete one user from the DB by its id
-// func (db *SqlClient) DeleteUser(id string) error {
-// 	// execute the sql statement
-// 	comand, err := db.Prepare("delete from users where id=$1")
-// 	if err != nil {
-// 		return fmt.Errorf("unable to delete the user:" + err.Error())
-// 	}
-// 	defer comand.Close()
-// 	comand.Exec(id)
-// 	return nil
-// }
+// Delete one user from the DB by its id
+func (client *MongoClient) DeleteUser(id string) error {
+	var queryCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	// Declare a primitive ObjectID from a hexadecimal string
+	idPrimitive, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+	// get mongo collection
+	collection := client.getCollection()
+	// Call the DeleteOne() method by passing BSON
+	res, err := collection.DeleteOne(queryCtx, bson.M{"_id": idPrimitive})
+	if err != nil {
+		log.Println(err.Error())
+		return fmt.Errorf("unable to delete user")
+	} else if res.DeletedCount == 0 {
+		return fmt.Errorf("there is no such user for be deleted")
+	}
+	return nil
+}

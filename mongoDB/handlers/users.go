@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"crudAPI/models"
 	"crudAPI/services"
 	"crudAPI/types"
 	"net/http"
@@ -102,7 +101,7 @@ func DeleteUser(ctx *gin.Context) {
 	}
 
 	// call DeleteUser to delete the user
-	if err := models.DeleteUser(userID); err != nil {
+	if err := services.DeleteUser(userID); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
