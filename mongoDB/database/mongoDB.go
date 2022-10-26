@@ -11,6 +11,11 @@ import (
 
 var MongoDb = os.Getenv("MONGODB")
 
+// Create a custom SqlClient type which wraps the redis.Client connection pool.
+type MongoClient struct {
+	*mongo.Client
+}
+
 // create the mongoDB database connection
 func MongoInstance() *MongoClient {
 	// Create a new client and connect to the server
@@ -25,9 +30,4 @@ func MongoInstance() *MongoClient {
 func (client *MongoClient) OpenCollection(name string) *mongo.Collection {
 	var collection *mongo.Collection = client.Database("UsersMongo").Collection(name)
 	return collection
-}
-
-// Create a custom SqlClient type which wraps the redis.Client connection pool.
-type MongoClient struct {
-	*mongo.Client
 }
