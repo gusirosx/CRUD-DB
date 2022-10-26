@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // Create an unexported global variable to hold the collection connection pool.
@@ -95,6 +96,7 @@ func (client *MongoClient) CreateUser(user types.User) (types.User, error) {
 	user.Id = primitive.NewObjectID()
 	// get mongo collection
 	collection := client.getCollection()
+	//Insert one entry
 	_, err := collection.InsertOne(ctx, user)
 	if err != nil {
 		log.Println(err.Error())
@@ -103,17 +105,35 @@ func (client *MongoClient) CreateUser(user types.User) (types.User, error) {
 	return user, nil
 }
 
-// // Update one user from the DB by its id
-// func (db *SqlClient) UpdateUser(user types.User) error {
-// 	// execute the sql statement
-// 	comand, err := db.Prepare("update users set name=$2, gender=$3, age=$4 where id=$1")
-// 	if err != nil {
-// 		return fmt.Errorf("unable to update the user:" + err.Error())
-// 	}
-// 	defer comand.Close()
-// 	comand.Exec(user.ID, user.Name, user.Gender, user.Age)
-// 	return nil
-// }
+// Update one user from the DB by its id
+func (client *MongoClient) UpdateUser(id string, user types.User) error {
+
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+	// Declare a primitive ObjectID from a hexadecimal string
+	idPrimitive, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+
+	var updatedUser primitive.D
+	updatedUser = append(updatedUser,
+		bson.E{Key: "name", Value: user.Name},
+		bson.E{Key: "gender", Value: user.Gender},
+		bson.E{Key: "age", Value: user.Age})
+	opt := options.Update().SetUpsert(true)
+	update := bson.D{{Key: "$set", Value: updatedUser}}
+	// get mongo collection
+	collection := client.getCollection()
+	_, err = collection.UpdateByID(ctx, idPrimitive, update, opt)
+	if err != nil {
+		log.Println(err.Error())
+		return fmt.Errorf("unable to update user")
+	}
+
+	return nil
+}
 
 // // Delete one user from the DB by its id
 // func (db *SqlClient) DeleteUser(id string) error {

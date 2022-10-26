@@ -38,13 +38,13 @@ func CreateUser(user types.User) (types.User, error) {
 	return user, nil
 }
 
-// // UpdateUser updates a user in the postgres database
-// func UpdateUser(user types.User) error {
-// 	if err := client.UpdateUser(user); err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
+// UpdateUser updates a user in the postgres database
+func UpdateUser(userID string, user types.User) error {
+	if err := client.UpdateUser(userID, user); err != nil {
+		return err
+	}
+	return nil
+}
 
 // // DeleteUser delete a user in the postgres database
 // func DeleteUser(ID string) error {

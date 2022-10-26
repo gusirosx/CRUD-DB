@@ -45,7 +45,7 @@ func GetUser(ctx *gin.Context) {
 
 // CreateUser create a user in the postgres database
 func CreateUser(ctx *gin.Context) {
-	// create an empty user of type entity.User
+	// create an empty user of type types.User
 	var user types.User
 
 	// decode the json request to user
@@ -66,7 +66,7 @@ func CreateUser(ctx *gin.Context) {
 
 // UpdateUser update a user in the postgres database
 func UpdateUser(ctx *gin.Context) {
-	// create an empty user of type entity.User
+	// create an empty user of type types.User
 	var user types.User
 
 	// get the userID from the ctx params, key is "id"
@@ -83,7 +83,7 @@ func UpdateUser(ctx *gin.Context) {
 	}
 
 	// call UpdateUser to update the user
-	if err := models.UpdateUser(userID, user); err != nil {
+	if err := services.UpdateUser(userID, user); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

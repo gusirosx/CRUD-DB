@@ -20,22 +20,6 @@ var client *database.MongoClient = database.MongoInstance()
 // Create an unexported global variable to hold the collection connection pool.
 var collection *mongo.Collection = client.OpenCollection("user")
 
-// Create one user into DB
-func CreateUser(user types.User) error {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-	defer cancel()
-
-	// get a unique userID
-	user.Id = primitive.NewObjectID()
-	_, err := collection.InsertOne(ctx, user)
-	if err != nil {
-		log.Println(err.Error())
-		return fmt.Errorf("unable to create user")
-	}
-
-	return nil
-}
-
 // Update one user from the DB by its id
 func UpdateUser(id string, user types.User) error {
 
