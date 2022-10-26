@@ -3,13 +3,11 @@ package models
 import (
 	"context"
 	"crudAPI/database"
-	"crudAPI/entity"
+	"crudAPI/types"
 	"fmt"
 	"log"
-	"strconv"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,44 +15,14 @@ import (
 )
 
 // Create an unexported global variable to hold the database connection pool.
-var client *mongo.Client = database.MongoInstance()
+var client *database.MongoClient = database.MongoInstance()
 
 // Create an unexported global variable to hold the collection connection pool.
-var collection *mongo.Collection = database.OpenCollection(client, "user")
-
-// Get all users from the DB by its id
-func GetUsers(ctx *gin.Context) (response *mongo.Cursor, err error) {
-	recordPerPage, err := strconv.Atoi(ctx.Query("recordPerPage"))
-	if err != nil || recordPerPage < 1 {
-		recordPerPage = 10
-	}
-
-	startIndex, _ := strconv.Atoi(ctx.Query("startIndex"))
-	matchStage := bson.D{{Key: "$match", Value: bson.D{{}}}}
-	groupStage := bson.D{{Key: "$group", Value: bson.D{
-		{Key: "_id", Value: bson.D{{Key: "_id", Value: "null"}}},
-		{Key: "total_count", Value: bson.D{{Key: "$sum", Value: 1}}},
-		{Key: "data", Value: bson.D{{Key: "$push", Value: "$$ROOT"}}}}}}
-	projectStage := bson.D{
-		{Key: "$project", Value: bson.D{
-			{Key: "_id", Value: 0},
-			{Key: "total_count", Value: 1},
-			{Key: "user_items", Value: bson.D{
-				{Key: "$slice", Value: []interface{}{"$data", startIndex, recordPerPage}}}}}}}
-
-	var queryCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-	defer cancel()
-	response, err = collection.Aggregate(queryCtx, mongo.Pipeline{matchStage, groupStage, projectStage})
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
-	return
-}
+var collection *mongo.Collection = client.OpenCollection("user")
 
 // Get one user from the DB by its id
-func GetUser(UID string) (entity.User, error) {
-	var user entity.User
+func GetUser(UID string) (types.User, error) {
+	var user types.User
 	var queryCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
@@ -62,18 +30,18 @@ func GetUser(UID string) (entity.User, error) {
 	idPrimitive, err := primitive.ObjectIDFromHex(UID)
 	if err != nil {
 		log.Println(err.Error())
-		return entity.User{}, err
+		return types.User{}, err
 	}
 
 	// Call the FindOne() method by passing BSON
 	if err := collection.FindOne(queryCtx, bson.M{"_id": idPrimitive}).Decode(&user); err != nil {
-		return entity.User{}, err
+		return types.User{}, err
 	}
 	return user, nil
 }
 
 // Create one user into DB
-func CreateUser(user entity.User) error {
+func CreateUser(user types.User) error {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
@@ -89,7 +57,7 @@ func CreateUser(user entity.User) error {
 }
 
 // Update one user from the DB by its id
-func UpdateUser(id string, user entity.User) error {
+func UpdateUser(id string, user types.User) error {
 
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()

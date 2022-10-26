@@ -1,29 +1,23 @@
 package handlers
 
 import (
-	"crudAPI/entity"
 	"crudAPI/models"
-	"log"
+	"crudAPI/services"
+	"crudAPI/types"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 // GetUsers will return all the users
 func GetUsers(ctx *gin.Context) {
-	response, err := models.GetUsers(ctx)
+	response, err := services.GetUsers(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while listing user items"})
 		return
 	}
-
-	var allusers []bson.M
-	if err = response.All(ctx, &allusers); err != nil {
-		log.Println(err.Error())
-	}
 	// send the response message
-	ctx.JSON(http.StatusOK, allusers[0])
+	ctx.JSON(http.StatusOK, response)
 }
 
 // GetUser will return a specific user
@@ -52,7 +46,7 @@ func GetUser(ctx *gin.Context) {
 // CreateUser create a user in the postgres database
 func CreateUser(ctx *gin.Context) {
 	// create an empty user of type entity.User
-	var user entity.User
+	var user types.User
 
 	// decode the json request to user
 	if err := ctx.BindJSON(&user); err != nil {
@@ -72,7 +66,7 @@ func CreateUser(ctx *gin.Context) {
 // UpdateUser update a user in the postgres database
 func UpdateUser(ctx *gin.Context) {
 	// create an empty user of type entity.User
-	var user entity.User
+	var user types.User
 
 	// get the userID from the ctx params, key is "id"
 	userID := ctx.Param("id")
