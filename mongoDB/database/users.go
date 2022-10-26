@@ -2,6 +2,8 @@ package database
 
 import (
 	"context"
+	"crudAPI/types"
+	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -42,6 +44,7 @@ func (client *MongoClient) GetUsers(ctx *gin.Context) (primitive.M, error) { //(
 	var queryCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
+	// get mongo collection
 	collection := client.getCollection()
 	//var response *mongo.Cursor
 	response, err := collection.Aggregate(queryCtx, mongo.Pipeline{matchStage, groupStage, projectStage})
@@ -61,34 +64,44 @@ func (client *MongoClient) GetUsers(ctx *gin.Context) (primitive.M, error) { //(
 	return usersList[0], nil
 }
 
-// // Get one user from the DB by its id
-// func (db *SqlClient) GetUser(UID string) (types.User, error) {
-// 	// create an empty user of type entity.User
-// 	var user types.User
-// 	// create the select sql query
-// 	comand := "select * from users where id=$1"
-// 	// execute the sql statement
-// 	row := db.QueryRow(comand, UID)
-// 	// unmarshal the row object to user struct
-// 	if err := row.Scan(&user.ID, &user.Name, &user.Gender, &user.Age); err != nil {
-// 		return types.User{}, err
-// 	}
-// 	return user, nil
-// }
+// Get one user from the DB by its id
+func (client *MongoClient) GetUser(UID string) (types.User, error) {
+	var user types.User
+	var queryCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
 
-// // Create one user into DB
-// func (db *SqlClient) CreateUser(user types.User) (types.User, error) {
-// 	// get a unique userID
-// 	user.ID = uuid.New().String()
-// 	// execute the sql statement
-// 	comand, err := db.Prepare("insert into users(id,name,gender,age) values($1, $2, $3, $4)")
-// 	if err != nil {
-// 		return types.User{}, fmt.Errorf("unable to create the user:" + err.Error())
-// 	}
-// 	defer comand.Close()
-// 	comand.Exec(user.ID, user.Name, user.Gender, user.Age)
-// 	return user, nil
-// }
+	// Get a primitive ObjectID from a hexadecimal string
+	idPrimitive, err := primitive.ObjectIDFromHex(UID)
+	if err != nil {
+		log.Println(err.Error())
+		return types.User{}, err
+	}
+
+	// get mongo collection
+	collection := client.getCollection()
+	// Call the FindOne() method by passing BSON
+	if err := collection.FindOne(queryCtx, bson.M{"_id": idPrimitive}).Decode(&user); err != nil {
+		return types.User{}, err
+	}
+	return user, nil
+}
+
+// Create one user into DB
+func (client *MongoClient) CreateUser(user types.User) (types.User, error) {
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	// get a unique userID
+	user.Id = primitive.NewObjectID()
+	// get mongo collection
+	collection := client.getCollection()
+	_, err := collection.InsertOne(ctx, user)
+	if err != nil {
+		log.Println(err.Error())
+		return types.User{}, fmt.Errorf("unable to create user")
+	}
+	return user, nil
+}
 
 // // Update one user from the DB by its id
 // func (db *SqlClient) UpdateUser(user types.User) error {

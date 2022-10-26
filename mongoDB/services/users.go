@@ -2,6 +2,7 @@ package services
 
 import (
 	"crudAPI/database"
+	"crudAPI/types"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -19,23 +20,23 @@ func GetUsers(ctx *gin.Context) (primitive.M, error) {
 	return userList, nil
 }
 
-// // Get one user from the DB by its id
-// func GetUser(UID string) (types.User, error) {
-// 	user, err := client.GetUser(UID)
-// 	if err != nil {
-// 		return types.User{}, err
-// 	}
-// 	return user, nil
-// }
+// Get one user from the DB by its id
+func GetUser(UID string) (types.User, error) {
+	user, err := client.GetUser(UID)
+	if err != nil {
+		return types.User{}, err
+	}
+	return user, nil
+}
 
-// // CreateUser create a user in the postgres database
-// func CreateUser(user types.User) (types.User, error) {
-// 	user, err := client.CreateUser(user)
-// 	if err != nil {
-// 		return types.User{}, err
-// 	}
-// 	return user, nil
-// }
+// CreateUser create a user in the postgres database
+func CreateUser(user types.User) (types.User, error) {
+	user, err := client.CreateUser(user)
+	if err != nil {
+		return types.User{}, err
+	}
+	return user, nil
+}
 
 // // UpdateUser updates a user in the postgres database
 // func UpdateUser(user types.User) error {

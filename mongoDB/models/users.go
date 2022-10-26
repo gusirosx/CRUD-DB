@@ -20,26 +20,6 @@ var client *database.MongoClient = database.MongoInstance()
 // Create an unexported global variable to hold the collection connection pool.
 var collection *mongo.Collection = client.OpenCollection("user")
 
-// Get one user from the DB by its id
-func GetUser(UID string) (types.User, error) {
-	var user types.User
-	var queryCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-	defer cancel()
-
-	// Get a primitive ObjectID from a hexadecimal string
-	idPrimitive, err := primitive.ObjectIDFromHex(UID)
-	if err != nil {
-		log.Println(err.Error())
-		return types.User{}, err
-	}
-
-	// Call the FindOne() method by passing BSON
-	if err := collection.FindOne(queryCtx, bson.M{"_id": idPrimitive}).Decode(&user); err != nil {
-		return types.User{}, err
-	}
-	return user, nil
-}
-
 // Create one user into DB
 func CreateUser(user types.User) error {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
